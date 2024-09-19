@@ -1,0 +1,30 @@
+---
+title: "Quick Start"
+description: "Overview and API endpoint examples for Adscrush CRM API"
+---
+
+## Welcome
+
+To interact with the API, you can use the provided API specifications. All API endpoints require authentication using `API_KEY`. Include your API key in the `API_KEY` header when making requests.
+
+### Base API URL
+
+The base URL for the API is `https://adscrush-api.anonymoussherlock.workers.dev/api`.
+
+<CardGroup cols={1}>
+
+<Card title="Create Lead" icon="lightbulb" iconType="duotone" color="#ca8b04" href="leads-endpoint/create">
+  View the API specification for Create Lead
+</Card>
+
+</CardGroup>
+
+### Authentication
+
+All API endpoints require authentication using `API_KEY`. Include your API key in the `API_KEY` header when making requests.
+
+```json Headers
+headers = {
+    "API_KEY": "<api_key>",
+}
+```

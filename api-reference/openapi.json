@@ -1,130 +1,66 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.0.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
+    "version": "1.0.0",
+    "title": "Adscrush CRM API",
+    "description": "API for managing leads in Adscrush CRM",
     "license": {
       "name": "MIT"
-    },
-    "version": "1.0.0"
+    }
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://adscrush-api.anonymoussherlock.workers.dev/api"
     }
   ],
   "security": [
     {
-      "bearerAuth": []
+      "API_KEY": []
     }
   ],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
+    "/v1/order/leads": {
+      "post": {
+        "summary": "Add a new lead to campaign",
+        "description": "Add a new lead to campaign",
+        "security": [
           {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
+            "API_KEY": []
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewLead"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "order_id": { "type": "string", "example": "rec_crlh9b3n9o8uin0cj1kg" }
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
+            "$ref": "#/components/responses/ZodValidationError"
           },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
           },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       }
@@ -132,63 +68,123 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "Lead": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier for the lead."
+          },
           "name": {
-            "description": "The name of the plant",
-            "type": "string"
+            "type": "string",
+            "description": "The name of the lead."
           },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+          "phone": {
+            "type": "string",
+            "description": "The phone number of the lead."
           },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
+          "address": {
+            "type": "string",
+            "description": "The address of the lead."
+          },
+          "s1": {
+            "type": "string",
+            "description": "The unique identifier provided by us."
+          },
+          "lp_name": {
+            "type": "string",
+            "description": "The identifier of the lp name associated with the lead."
           }
-        ]
+        },
+        "required": ["name", "phone", "s1", "lp_name"],
+        "description": "Represents a lead in the Adscrush CRM system."
       },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
+      "NewLead": {
         "type": "object",
         "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          }
-        }
+          "name": { "type": "string", "description": "Name is required. The name of the lead." },
+          "phone": { "type": "string", "description": "The phone number of the lead." },
+          "s1": { "type": "string", "description": "The unique code provided by us." },
+          "lp_name": { "type": "string", "description": "The lp name  provided by us." },
+          "address": { "type": "string", "description": "The address of the lead." }
+        },
+        "required": ["name", "phone", "s1", "lp_name"]
       }
     },
     "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+      "API_KEY": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "API_KEY",
+        "description": "Your API key. Include this key in the `API_KEY` header when making requests to endpoints that require authentication. You can find your API key in the 'Profile' tab on the website."
+      }
+    },
+    "responses": {
+      "UnauthorizedError": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "unauthorized" },
+                "message": {
+                  "type": "string",
+                  "example": "Authentication failed"
+                }
+              }
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "Internal Server Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "error" },
+                "message": {
+                  "type": "string",
+                  "example": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ZodValidationError": {
+        "description": "Zod Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "validation" },
+                "message": { "type": "string", "example": "Invalid input data" }
+              }
+            }
+          }
+        }
+      },
+      "NotFoundError": {
+        "description": "Not Found Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Not Found" },
+                "message": { "type": "string", "example": "No lead found with this id" }
+              }
+            }
+          }
+        }
       }
     }
   }
