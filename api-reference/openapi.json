@@ -19,7 +19,7 @@
     }
   ],
   "paths": {
-    "/v1/order/leads": {
+    "/v1/leads": {
       "post": {
         "summary": "Add a new lead to campaign",
         "description": "Add a new lead to campaign",
